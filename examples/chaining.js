@@ -1,5 +1,6 @@
 // Run this example with `node examples/chaining.js`
 // It will succeed most of the time, but fail occasionally to demonstrate error handling
+//Q?
 
 var Promise = require('bluebird');
 var db = Promise.promisifyAll(require('../lib/db'));
