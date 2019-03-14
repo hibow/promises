@@ -19,6 +19,7 @@ var fetchProfileAndWriteToFile = function(readFilePath, writeFilePath) {
     .then( function(user) {
       return getUserProfile(user);
     })
+    
     .then( function(profile) {
       return fs.writeFileAsync(writeFilePath, JSON.stringify(profile));
     });
