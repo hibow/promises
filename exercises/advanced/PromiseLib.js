@@ -3,7 +3,7 @@ var Promise = require('bluebird');
 
 /**
  * Return a function that wraps `nodeStyleFn`. When the returned function is invoked,
- * it will return a promise which will be resolved or rejected, depending on 
+ * it will return a promise which will be resolved or rejected, depending on
  * the execution of the now-wrapped `nodeStyleFn`
  *
  * In other words:
@@ -15,7 +15,25 @@ var Promise = require('bluebird');
  */
 
 var promisify = function(nodeStyleFn) {
- // TODO
+  //when the return function invoked?
+  return function(...args) { //input
+    //console.log('arg', args);
+    return new Promise (function (resolve, reject) {
+      var callback = function(err, result) {
+        if (err) {
+          //console.log('err', err);
+          reject(err);
+        }
+        if (result) {
+          //console.log('result', Buffer.from(result).toString());
+          resolve(Buffer.from(result));
+        }
+      };
+      args.push(callback);
+      //console.log('args', args);
+      nodeStyleFn.apply(this, args);
+    });
+  };
 };
 
 
@@ -31,7 +49,25 @@ var promisify = function(nodeStyleFn) {
  */
 
 var all = function(arrayOfPromises) {
-  // TODO
+  var results = [];
+  return new Promise ( function(resolve, reject) {
+    arrayOfPromises.forEach( function( item, index) {
+    //  console.log('item', item);
+      item
+        .then ( function(result) {
+          //console.log('result', result);
+          results.push(result);
+          if (results.length === arrayOfPromises.length) {
+            //console.log('yes', results);
+            return resolve(results);
+          }
+        })
+        .catch( function (err) {
+          //console.log('err--->', err);
+          return reject(err);
+        });
+    });
+  });
 };
 
 
@@ -42,7 +78,20 @@ var all = function(arrayOfPromises) {
  */
 
 var race = function(arrayOfPromises) {
-  // TODO
+//return the first returned promise
+  return new Promise( function(resolve, reject) {
+    arrayOfPromises.forEach( function(item, index) {
+      item
+        .then( function(result) {
+          // console.log('result--->', result);
+          return resolve(result);
+        })
+        .catch( function(err) {
+          //console.log('err --->', err);
+          return reject(err);
+        });
+    });
+  });
 };
 
 // Export these functions so we can unit test them

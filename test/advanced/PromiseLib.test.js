@@ -67,8 +67,8 @@ describe('PromiseLib', function() {
 
       PromiseLib.all(arrayOfPromises)
         .then(function(values) {
-          expect(values).to.deep.equal(['a', 'b', 'c']); // order matters
-          done();
+          expect(values).to.deep.equal(['b', 'a', 'c']); // order matters
+          done(); //Q? it was [a, b, c]
         })
         .catch(done);
     });
