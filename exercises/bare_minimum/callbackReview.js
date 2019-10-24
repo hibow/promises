@@ -6,24 +6,32 @@ var fs = require('fs');
 var request = require('request');
 
 // This function should retrieve the first line of the file at `filePath`
-var pluckFirstLineFromFile = function (filePath, cb) {
-  fs.readFile( filePath, 'utf8', (err, data) => {
-    if (err) {
-      cb(err);
+var pluckFirstLineFromFile = function (filePath, callback) {
+  const rs = fs.createReadStream(filePath, {encoding: 'utf8'});
+  let index;
+  let body = '';
+  let loc = 0;
+  rs.on('data', chunk => {
+    index = chunk.indexOf('\n');
+    body += chunk;
+    if (index === -1) {
+      loc = chunk.length;
     } else {
-      var firstLine = data.split('\n')[0];
-      cb(null, firstLine);
+      loc = index;
+      rs.close();
     }
-  });
+  })
+    .on('close', () => callback(null, body.slice(body.charCodeAt(0) === 0xFEFF ? 1 : 0, loc)))
+    .on('error', err => callback(err, null));
 };
 
 // This function should retrieve the status code of a GET request to `url`
-var getStatusCode = function (url, cb) {
-  request(url, (err, response, body) => {
-    if (err) {
-      cb(err);
+var getStatusCode = function (url, callback) {
+  request(url, function(error, response, body) {
+    if (error) {
+      callback(error, null);
     } else {
-      cb(null, response.statusCode);
+      callback(null, (response && response.statusCode));
     }
   });
 };

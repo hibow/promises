@@ -11,23 +11,17 @@
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));
 var pluckFirstLine = require('./promiseConstructor.js').pluckFirstLineFromFileAsync;
-var getProfile = require('./promisification.js').getGitHubProfileAsync;
+var getUserProfile = require('./promisification.js').getGitHubProfileAsync;
+//var writeFileAsync = Promise.promisifyAll(require('fs')).writeFile;
 
-var fetchProfileAndWriteToFile = (readFilePath, writeFilePath) => {
+var fetchProfileAndWriteToFile = function(readFilePath, writeFilePath) {
   return pluckFirstLine(readFilePath)
-    .then((user) => {
-      return getProfile(user);
+    .then( function(user) {
+      return getUserProfile(user);
     })
-    .then ((profile) => {
-      return new Promise((resolve, reject) => {
-        fs.writeFile(writeFilePath, JSON.stringify(profile), (err, data) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(data);
-          }
-        });
-      });
+    
+    .then( function(profile) {
+      return fs.writeFileAsync(writeFilePath, JSON.stringify(profile));
     });
 };
 

@@ -25,6 +25,29 @@ var lib = require('../../lib/advancedChainingLib');
 // the `Predict on Public and Custom Models` scope
 
 var searchCommonConceptsFromGitHubProfiles = function (githubHandles) {
+  return Promise.all((githubHandles).map( function(handle) {
+    return lib.getGitHubProfile(handle);
+  })).then( function(profiles) {
+    return Promise.all(profiles.map( function(profile) {
+      var url = profile.avatarUrl;
+      //console.log('url', url);
+      return lib.predictImage(url);
+    })).then( function(concepts) {
+      //console.log('concept, ', concepts);
+      var result = lib.getIntersection(concepts);
+      //console.log('result', result);
+      return result;
+    }).catch( function(err) {
+      //console.log('err  ', err);
+      throw err;
+    });
+  /*
+   *   1) get the public profile associated with each handle (array)
+ *   2) extract the avatar_url of each profile
+ *   4) get the set of concepts for each avatar_url (requires API key)
+ *   5) find the intersection of the concepts
+ * */
+  });
 };
 
 // Export these functions so we can unit test them
